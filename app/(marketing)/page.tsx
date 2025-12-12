@@ -19,7 +19,7 @@ export default function LandingPage() {
     <div className="relative min-h-screen w-full flex flex-col overflow-x-hidden font-[family-name:var(--font-display)]">
 
       {/* Hero Section with WebGL Background */}
-      <div className="relative overflow-hidden">
+      <div className="relative overflow-hidden min-h-[50rem] md:min-h-[80rem]">
         <WebGLShader />
 
         {/* Subtle Ambient Gradient */}
@@ -66,6 +66,7 @@ export default function LandingPage() {
             width={1400}
             className="mx-auto object-cover h-full w-full object-center rounded-[24px] shadow-[0_0_40px_rgba(0,255,156,0.1)]"
             draggable={false}
+            priority
           />
         </ContainerScroll>
       </div>
