@@ -15,6 +15,7 @@ import {
 import type { StepContext } from "./steps/step-handler";
 import { triggerStep } from "./steps/trigger";
 import { getErrorMessageAsync } from "./utils";
+import { processConfigTemplates } from "./utils/template";
 import type { WorkflowEdge, WorkflowNode } from "./workflow-store";
 
 // System actions that don't have plugins - maps to module import functions
@@ -219,13 +220,17 @@ async function executeActionStep(input: {
   config: Record<string, unknown>;
   outputs: NodeOutputs;
   context: StepContext;
+  triggerData?: Record<string, unknown>;
 }) {
-  const { actionType, config, outputs, context } = input;
+  const { actionType, config, outputs, context, triggerData } = input;
 
   // Build step input WITHOUT credentials, but WITH integrationId reference and logging context
   const stepInput: Record<string, unknown> = {
     ...config,
-    _context: context,
+    _context: {
+      ...context,
+      triggerData,
+    },
   };
 
   // Special handling for Condition action - needs template evaluation
@@ -276,98 +281,6 @@ async function executeActionStep(input: {
     success: false,
     error: `Unknown action type: "${actionType}". This action is not registered in the plugin system. Available system actions: ${Object.keys(SYSTEM_ACTIONS).join(", ")}.`,
   };
-}
-
-/**
- * Process template variables in config
- */
-function processTemplates(
-  config: Record<string, unknown>,
-  outputs: NodeOutputs
-): Record<string, unknown> {
-  const processed: Record<string, unknown> = {};
-
-  for (const [key, value] of Object.entries(config)) {
-    if (typeof value === "string") {
-      // Process template variables like {{@nodeId:Label.field}}
-      let processedValue = value;
-      const templatePattern = /\{\{@([^:]+):([^}]+)\}\}/g;
-      processedValue = processedValue.replace(
-        templatePattern,
-        // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Template processing requires nested logic
-        (match, nodeId, rest) => {
-          const sanitizedNodeId = nodeId.replace(/[^a-zA-Z0-9]/g, "_");
-          const output = outputs[sanitizedNodeId];
-          if (!output) {
-            return match;
-          }
-
-          const dotIndex = rest.indexOf(".");
-          if (dotIndex === -1) {
-            // No field path, return the entire output data
-            const data = output.data;
-            if (data === null || data === undefined) {
-              // Return empty string for null/undefined data (e.g., from disabled nodes)
-              return "";
-            }
-            if (typeof data === "object") {
-              return JSON.stringify(data);
-            }
-            return String(data);
-          }
-
-          // If data is null/undefined, return empty string instead of trying to access fields
-          if (output.data === null || output.data === undefined) {
-            return "";
-          }
-
-          const fieldPath = rest.substring(dotIndex + 1);
-          const fields = fieldPath.split(".");
-          // biome-ignore lint/suspicious/noExplicitAny: Dynamic output data traversal
-          let current: any = output.data;
-
-          // For standardized outputs { success, data, error }, automatically look inside data
-          // unless explicitly accessing success/data/error
-          const firstField = fields[0];
-          if (
-            current &&
-            typeof current === "object" &&
-            "success" in current &&
-            "data" in current &&
-            firstField !== "success" &&
-            firstField !== "data" &&
-            firstField !== "error"
-          ) {
-            current = current.data;
-          }
-
-          for (const field of fields) {
-            if (current && typeof current === "object") {
-              current = current[field];
-            } else {
-              // Field access failed, return empty string
-              return "";
-            }
-          }
-
-          // Convert value to string, using JSON.stringify for objects/arrays
-          if (current === null || current === undefined) {
-            return "";
-          }
-          if (typeof current === "object") {
-            return JSON.stringify(current);
-          }
-          return String(current);
-        }
-      );
-
-      processed[key] = processedValue;
-    } else {
-      processed[key] = value;
-    }
-  }
-
-  return processed;
 }
 
 /**
@@ -457,7 +370,7 @@ export async function executeWorkflow(input: WorkflowExecutionInput) {
       // Store null output for disabled nodes so downstream templates don't fail
       const sanitizedNodeId = nodeId.replace(/[^a-zA-Z0-9]/g, "_");
       outputs[sanitizedNodeId] = {
-        label: node.data.label || nodeId,
+        label: getNodeName(node),
         data: null,
       };
 
@@ -483,7 +396,7 @@ export async function executeWorkflow(input: WorkflowExecutionInput) {
 
         // Handle webhook mock request for test runs
         if (
-          triggerType === "Webhook" &&
+          (triggerType === "Webhook" || triggerType === "Telegram") &&
           config.webhookMockRequest &&
           (!triggerInput || Object.keys(triggerInput).length === 0)
         ) {
@@ -544,7 +457,7 @@ export async function executeWorkflow(input: WorkflowExecutionInput) {
         const originalCondition = config.condition;
         configWithoutCondition.condition = undefined;
 
-        const processedConfig = processTemplates(
+        const processedConfig = processConfigTemplates(
           configWithoutCondition,
           outputs
         );
@@ -565,12 +478,26 @@ export async function executeWorkflow(input: WorkflowExecutionInput) {
         // Execute the action step with stepHandler (logging is handled inside)
         // IMPORTANT: We pass integrationId via config, not actual credentials
         // Steps fetch credentials internally using fetchCredentials(integrationId)
+        // Get trigger data for smart reply features
+        const triggerNodeId = triggerNodes[0]?.id;
+        const sanitizedTriggerId = triggerNodeId?.replace(/[^a-zA-Z0-9]/g, "_");
+        const triggerOutputData = sanitizedTriggerId ? outputs[sanitizedTriggerId]?.data : {};
+
+        // DEBUG: Log trigger data being passed to action steps
+        console.log("[Workflow Executor] Trigger data for action:", {
+          triggerNodeId,
+          sanitizedTriggerId,
+          hasTriggerOutput: !!outputs[sanitizedTriggerId],
+          triggerOutputData: JSON.stringify(triggerOutputData, null, 2),
+        });
+
         console.log("[Workflow Executor] Calling executeActionStep");
         const stepResult = await executeActionStep({
           actionType,
           config: processedConfig,
           outputs,
           context: stepContext,
+          triggerData: triggerOutputData as Record<string, unknown>,
         });
 
         console.log("[Workflow Executor] Step result received:", {
@@ -595,7 +522,7 @@ export async function executeWorkflow(input: WorkflowExecutionInput) {
             typeof errorResult.error === "string"
               ? errorResult.error
               : errorResult.error?.message ||
-                `Step "${actionType}" in node "${node.data.label || node.id}" failed without a specific error message.`;
+              `Step "${actionType}" in node "${node.data.label || node.id}" failed without a specific error message.`;
           result = {
             success: false,
             error: errorMessage,
@@ -620,7 +547,7 @@ export async function executeWorkflow(input: WorkflowExecutionInput) {
       // Store outputs with sanitized nodeId for template variable lookup
       const sanitizedNodeId = nodeId.replace(/[^a-zA-Z0-9]/g, "_");
       outputs[sanitizedNodeId] = {
-        label: node.data.label || nodeId,
+        label: getNodeName(node),
         data: result.data,
       };
 

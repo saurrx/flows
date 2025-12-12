@@ -138,25 +138,34 @@ export async function POST(
       );
     }
 
-    // Validate API key - must belong to the workflow owner
-    const authHeader = request.headers.get("Authorization");
-    const apiKeyValidation = await validateApiKey(authHeader, workflow.userId);
-
-    if (!apiKeyValidation.valid) {
-      return NextResponse.json(
-        { error: apiKeyValidation.error },
-        { status: apiKeyValidation.statusCode || 401, headers: corsHeaders }
-      );
-    }
-
-    // Verify this is a webhook-triggered workflow
+    // Identify Trigger Node & Type
     const triggerNode = (workflow.nodes as WorkflowNode[]).find(
       (node) => node.data.type === "trigger"
     );
+    const triggerType = triggerNode?.data.config?.triggerType;
 
-    if (!triggerNode || triggerNode.data.config?.triggerType !== "Webhook") {
+    // Validation Logic (Branching by trigger type)
+    if (triggerType === "Telegram") {
+      // === TELEGRAM BYPASS ===
+      // Telegram does not send Authorization headers.
+      // We rely on the workflowId UUID being secret enough for this context.
+      console.log("[Webhook] Telegram trigger - bypassing API key validation");
+    } else if (triggerType === "Webhook") {
+      // === STANDARD WEBHOOK ===
+      // Require API Key for generic webhooks
+      const authHeader = request.headers.get("Authorization");
+      const apiKeyValidation = await validateApiKey(authHeader, workflow.userId);
+
+      if (!apiKeyValidation.valid) {
+        return NextResponse.json(
+          { error: apiKeyValidation.error },
+          { status: apiKeyValidation.statusCode || 401, headers: corsHeaders }
+        );
+      }
+    } else {
+      // === INVALID ===
       return NextResponse.json(
-        { error: "This workflow is not configured for webhook triggers" },
+        { error: "This workflow is not configured for webhook/telegram triggers" },
         { status: 400, headers: corsHeaders }
       );
     }
@@ -178,7 +187,24 @@ export async function POST(
     }
 
     // Parse request body
-    const body = await request.json().catch(() => ({}));
+    let body = await request.json().catch(() => ({}));
+
+    // === Flatten Telegram Data ===
+    if (triggerType === "Telegram" && body.message) {
+      // Extract key fields to top level for easy access in UI
+      const flattened = {
+        text: body.message.text || "",
+        chatId: body.message.chat?.id,
+        userId: body.message.from?.id,
+        username: body.message.from?.username,
+        firstName: body.message.from?.first_name,
+        // Keep original raw data
+        raw: body
+      };
+      body = flattened;
+      console.log("[Webhook] Flattened Telegram data:", { text: flattened.text, chatId: flattened.chatId });
+    }
+    // ==============================
 
     // Create execution record
     const [execution] = await db

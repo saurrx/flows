@@ -89,8 +89,10 @@ Visit [http://localhost:3000](http://localhost:3000) to get started.
 - **Perplexity**: Search Web, Ask Question, Research Topic
 - **Resend**: Send Email
 - **Slack**: Send Slack Message
+- **Solana**: Extract CA, Trade Token
 - **Stripe**: Create Customer, Get Customer, Create Invoice
 - **Superagent**: Guard, Redact
+- **Telegram**: Send Message
 - **v0**: Create Chat, Send Message
 - **Webflow**: List Sites, Get Site, Publish Site
 <!-- PLUGINS:END -->

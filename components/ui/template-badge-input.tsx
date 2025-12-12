@@ -14,13 +14,14 @@ export interface TemplateBadgeInputProps {
   disabled?: boolean;
   className?: string;
   id?: string;
+  isPassword?: boolean;
 }
 
 // Helper to check if a template references an existing node
 function doesNodeExist(template: string, nodes: ReturnType<typeof useAtom<typeof nodesAtom>>[0]): boolean {
   const match = template.match(/\{\{@([^:]+):([^}]+)\}\}/);
   if (!match) return false;
-  
+
   const nodeId = match[1];
   return nodes.some((n) => n.id === nodeId);
 }
@@ -30,17 +31,17 @@ function getDisplayTextForTemplate(template: string, nodes: ReturnType<typeof us
   // Extract nodeId and field from template: {{@nodeId:OldLabel.field}}
   const match = template.match(/\{\{@([^:]+):([^}]+)\}\}/);
   if (!match) return template;
-  
+
   const nodeId = match[1];
   const rest = match[2]; // e.g., "OldLabel.field" or "OldLabel"
-  
+
   // Find the current node
   const node = nodes.find((n) => n.id === nodeId);
   if (!node) {
     // Node not found, return as-is
     return rest;
   }
-  
+
   // Get display label: custom label > human-readable action label > fallback
   let displayLabel: string | undefined = node.data.label;
   if (!displayLabel && node.data.type === "action") {
@@ -50,22 +51,22 @@ function getDisplayTextForTemplate(template: string, nodes: ReturnType<typeof us
       displayLabel = action?.label;
     }
   }
-  
+
   const dotIndex = rest.indexOf(".");
-  
+
   if (dotIndex === -1) {
     // No field, just the node: {{@nodeId:Label}}
     return displayLabel ?? rest;
   }
-  
+
   // Has field: {{@nodeId:Label.field}}
   const field = rest.substring(dotIndex + 1);
-  
+
   // If no display label, fall back to the original label from the template
   if (!displayLabel) {
     return rest;
   }
-  
+
   return `${displayLabel}.${field}`;
 }
 
@@ -80,6 +81,7 @@ export function TemplateBadgeInput({
   disabled,
   className,
   id,
+  isPassword,
 }: TemplateBadgeInputProps) {
   const [isFocused, setIsFocused] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -87,7 +89,7 @@ export function TemplateBadgeInput({
   const shouldUpdateDisplay = useRef(true);
   const [selectedNodeId] = useAtom(selectedNodeAtom);
   const [nodes] = useAtom(nodesAtom);
-  
+
   // Autocomplete state
   const [showAutocomplete, setShowAutocomplete] = useState(false);
   const [autocompletePosition, setAutocompletePosition] = useState({ top: 0, left: 0 });
@@ -113,17 +115,17 @@ export function TemplateBadgeInput({
   // Save cursor position
   const saveCursorPosition = (): { offset: number } | null => {
     if (!contentRef.current) return null;
-    
+
     const selection = window.getSelection();
     if (!selection || selection.rangeCount === 0) {
       return null;
     }
-    
+
     const range = selection.getRangeAt(0);
     const preCaretRange = range.cloneRange();
     preCaretRange.selectNodeContents(contentRef.current);
     preCaretRange.setEnd(range.endContainer, range.endOffset);
-    
+
     // Calculate offset considering badges as single characters
     let offset = 0;
     const walker = document.createTreeWalker(
@@ -131,7 +133,7 @@ export function TemplateBadgeInput({
       NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT,
       null
     );
-    
+
     let node;
     let found = false;
     while ((node = walker.nextNode()) && !found) {
@@ -156,27 +158,27 @@ export function TemplateBadgeInput({
         }
       }
     }
-    
+
     return { offset };
   };
-  
+
   // Restore cursor position
   const restoreCursorPosition = (cursorPos: { offset: number } | null) => {
     if (!contentRef.current || !cursorPos) {
       return;
     }
-    
+
     let offset = 0;
     const walker = document.createTreeWalker(
       contentRef.current,
       NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT,
       null
     );
-    
+
     let node;
     let targetNode: Node | null = null;
     let targetOffset = 0;
-    
+
     while ((node = walker.nextNode())) {
       if (node.nodeType === Node.TEXT_NODE) {
         const textLength = (node.textContent || "").length;
@@ -205,7 +207,7 @@ export function TemplateBadgeInput({
         }
       }
     }
-    
+
     if (targetNode) {
       const range = document.createRange();
       const selection = window.getSelection();
@@ -229,7 +231,7 @@ export function TemplateBadgeInput({
 
     const container = contentRef.current;
     const text = internalValue || "";
-    
+
     // Save cursor position before updating
     let cursorPos = isFocused ? saveCursorPosition() : null;
 
@@ -292,7 +294,7 @@ export function TemplateBadgeInput({
     }
 
     shouldUpdateDisplay.current = false;
-    
+
     // Restore cursor position after updating
     if (cursorPos) {
       // Use requestAnimationFrame to ensure DOM is fully updated
@@ -324,7 +326,7 @@ export function TemplateBadgeInput({
           }
           parent = parent.parentElement;
         }
-        
+
         // Only add text if it's NOT inside a badge
         if (!isInsideBadge) {
           result += node.textContent;
@@ -344,46 +346,46 @@ export function TemplateBadgeInput({
   const handleInput = () => {
     // Extract the value from DOM
     const newValue = extractValue();
-    
+
     // Check if the value has changed
     if (newValue === internalValue) {
       // No change, ignore (this can happen with badge clicks, etc)
       return;
     }
-    
+
     // Count templates in old and new values
     const oldTemplates = (internalValue.match(/\{\{@([^:]+):([^}]+)\}\}/g) || []).length;
     const newTemplates = (newValue.match(/\{\{@([^:]+):([^}]+)\}\}/g) || []).length;
-    
+
     if (newTemplates > oldTemplates) {
       // A new template was added, update display to show badge
       setInternalValue(newValue);
       onChange?.(newValue);
       shouldUpdateDisplay.current = true;
       setShowAutocomplete(false);
-      
+
       // Call updateDisplay immediately to render badges
       requestAnimationFrame(() => updateDisplay());
       return;
     }
-    
+
     if (newTemplates === oldTemplates && newTemplates > 0) {
       // Same number of templates, just typing around existing badges
       // DON'T update display, just update the value
       setInternalValue(newValue);
       onChange?.(newValue);
       // Don't trigger display update - this prevents cursor reset!
-      
+
       // Check for @ sign to show autocomplete (moved here so it works with existing badges)
       const lastAtSign = newValue.lastIndexOf("@");
-      
+
       if (lastAtSign !== -1) {
         const filter = newValue.slice(lastAtSign + 1);
-        
+
         if (!filter.includes(" ")) {
           setAutocompleteFilter(filter);
           setAtSignPosition(lastAtSign);
-          
+
           if (contentRef.current) {
             const inputRect = contentRef.current.getBoundingClientRect();
             const position = {
@@ -399,10 +401,10 @@ export function TemplateBadgeInput({
       } else {
         setShowAutocomplete(false);
       }
-      
+
       return;
     }
-    
+
     if (newTemplates < oldTemplates) {
       // A template was removed (e.g., user deleted a badge or part of template text)
       setInternalValue(newValue);
@@ -411,21 +413,21 @@ export function TemplateBadgeInput({
       requestAnimationFrame(() => updateDisplay());
       return;
     }
-    
+
     // Normal typing (no badges present)
     setInternalValue(newValue);
     onChange?.(newValue);
-    
+
     // Check for @ sign to show autocomplete
     const lastAtSign = newValue.lastIndexOf("@");
-    
+
     if (lastAtSign !== -1) {
       const filter = newValue.slice(lastAtSign + 1);
-      
+
       if (!filter.includes(" ")) {
         setAutocompleteFilter(filter);
         setAtSignPosition(lastAtSign);
-        
+
         if (contentRef.current) {
           const inputRect = contentRef.current.getBoundingClientRect();
           const position = {
@@ -445,28 +447,28 @@ export function TemplateBadgeInput({
 
   const handleAutocompleteSelect = (template: string) => {
     if (!contentRef.current || atSignPosition === null) return;
-    
+
     // Get current text
     const currentText = extractValue();
-    
+
     // Replace from @ position to end of filter with the template
     const beforeAt = currentText.slice(0, atSignPosition);
     const afterFilter = currentText.slice(atSignPosition + 1 + autocompleteFilter.length);
     const newText = beforeAt + template + afterFilter;
-    
+
     // Calculate where cursor should be after the template (right after the badge)
     const targetCursorPosition = beforeAt.length + template.length;
-    
+
     setInternalValue(newText);
     onChange?.(newText);
     shouldUpdateDisplay.current = true;
-    
+
     setShowAutocomplete(false);
     setAtSignPosition(null);
 
     // Set pending cursor position for the next update
     pendingCursorPosition.current = targetCursorPosition;
-    
+
     // Ensure we focus the input so the display update and cursor restoration works
     contentRef.current.focus();
   };
@@ -522,10 +524,11 @@ export function TemplateBadgeInput({
           onPaste={handlePaste}
           ref={contentRef}
           role="textbox"
+          style={isPassword ? { WebkitTextSecurity: "disc" } as React.CSSProperties : undefined}
           suppressContentEditableWarning
         />
       </div>
-      
+
       <TemplateAutocomplete
         currentNodeId={selectedNodeId || undefined}
         filter={autocompleteFilter}

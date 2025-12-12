@@ -24,8 +24,10 @@ import "./linear";
 import "./perplexity";
 import "./resend";
 import "./slack";
+import "./solana";
 import "./stripe";
 import "./superagent";
+import "./telegram";
 import "./v0";
 import "./webflow";
 

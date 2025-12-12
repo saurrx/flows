@@ -23,12 +23,13 @@ export type ActionConfigFieldBase = {
 
   // Field type
   type:
-    | "template-input" // TemplateBadgeInput - supports {{variable}}
-    | "template-textarea" // TemplateBadgeTextarea - supports {{variable}}
-    | "text" // Regular text input
-    | "number" // Number input
-    | "select" // Dropdown select
-    | "schema-builder"; // Schema builder for structured output
+  | "template-input" // TemplateBadgeInput - supports {{variable}}
+  | "template-password" // TemplateBadgeInput with password masking
+  | "template-textarea" // TemplateBadgeTextarea - supports {{variable}}
+  | "text" // Regular text input
+  | "number" // Number input
+  | "select" // Dropdown select
+  | "schema-builder"; // Schema builder for structured output
 
   // Placeholder text
   placeholder?: string;
@@ -106,17 +107,17 @@ export type ResultComponentProps = {
  */
 export type OutputDisplayConfig =
   | {
-      // Built-in display types
-  type: "image" | "video" | "url";
-  // Field name in the step output that contains the displayable value
-  field: string;
-    }
+    // Built-in display types
+    type: "image" | "video" | "url";
+    // Field name in the step output that contains the displayable value
+    field: string;
+  }
   | {
-      // Custom component display
-      type: "component";
-      // React component to render the output
-      component: React.ComponentType<ResultComponentProps>;
-};
+    // Custom component display
+    type: "component";
+    // React component to render the output
+    component: React.ComponentType<ResultComponentProps>;
+  };
 
 /**
  * Action Definition

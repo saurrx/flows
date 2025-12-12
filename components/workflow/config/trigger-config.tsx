@@ -1,7 +1,10 @@
 "use client";
 
-import { Clock, Copy, Play, Webhook } from "lucide-react";
+import { useState } from "react";
+import { Clock, Copy, Link, Loader2, Play, Webhook } from "lucide-react";
 import { toast } from "sonner";
+import { IntegrationSelector } from "@/components/ui/integration-selector";
+import { TelegramIcon } from "@/plugins/telegram/icon";
 import { Button } from "@/components/ui/button";
 import { CodeEditor } from "@/components/ui/code-editor";
 import { Input } from "@/components/ui/input";
@@ -29,6 +32,8 @@ export function TriggerConfig({
   disabled,
   workflowId,
 }: TriggerConfigProps) {
+  const [isConnecting, setIsConnecting] = useState(false);
+
   const webhookUrl = workflowId
     ? `${typeof window !== "undefined" ? window.location.origin : ""}/api/workflows/${workflowId}/webhook`
     : "";
@@ -37,6 +42,40 @@ export function TriggerConfig({
     if (webhookUrl) {
       navigator.clipboard.writeText(webhookUrl);
       toast.success("Webhook URL copied to clipboard");
+    }
+  };
+
+  const handleConnectTelegram = async () => {
+    if (!workflowId) {
+      toast.error("Please save the workflow first");
+      return;
+    }
+
+    const integrationId = config.telegramIntegrationId as string;
+    if (!integrationId) {
+      toast.error("Please select a Telegram integration first");
+      return;
+    }
+
+    setIsConnecting(true);
+    try {
+      const response = await fetch("/api/integrations/telegram/set-webhook", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ integrationId, webhookUrl }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        toast.success("Bot Connected Successfully!");
+      } else {
+        throw new Error(result.error);
+      }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Connection failed");
+    } finally {
+      setIsConnecting(false);
     }
   };
 
@@ -71,6 +110,12 @@ export function TriggerConfig({
               <div className="flex items-center gap-2">
                 <Webhook className="h-4 w-4" />
                 Webhook
+              </div>
+            </SelectItem>
+            <SelectItem value="Telegram">
+              <div className="flex items-center gap-2">
+                <TelegramIcon className="h-4 w-4" />
+                Telegram Bot
               </div>
             </SelectItem>
           </SelectContent>
@@ -108,8 +153,8 @@ export function TriggerConfig({
               schema={
                 config?.webhookSchema
                   ? (JSON.parse(
-                      config.webhookSchema as string
-                    ) as SchemaField[])
+                    config.webhookSchema as string
+                  ) as SchemaField[])
                   : []
               }
             />
@@ -142,6 +187,39 @@ export function TriggerConfig({
             </p>
           </div>
         </>
+      )}
+
+      {/* Telegram fields */}
+      {config?.triggerType === "Telegram" && (
+        <div className="space-y-4 pt-2 border-t">
+          <div className="space-y-2">
+            <Label>Select Bot</Label>
+            <IntegrationSelector
+              integrationType="telegram"
+              value={config.telegramIntegrationId as string}
+              onChange={(id) => onUpdateConfig("telegramIntegrationId", id)}
+            />
+          </div>
+
+          <div className="rounded-md bg-blue-50 p-3 dark:bg-blue-900/20">
+            <p className="text-xs text-blue-700 dark:text-blue-300 mb-3">
+              Click below to automatically connect your bot to this workflow.
+            </p>
+            <Button
+              onClick={handleConnectTelegram}
+              disabled={!config.telegramIntegrationId || isConnecting}
+              className="w-full"
+              size="sm"
+            >
+              {isConnecting ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Link className="mr-2 h-4 w-4" />
+              )}
+              Connect to Telegram
+            </Button>
+          </div>
+        </div>
       )}
 
       {/* Schedule fields */}

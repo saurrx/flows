@@ -11,6 +11,7 @@ import { GitHubStarsProvider } from "@/components/github-stars-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { PersistentCanvas } from "@/components/workflow/persistent-canvas";
+import { TemplateButton } from "@/components/template-button";
 import { mono, sans } from "@/lib/fonts";
 import { cn } from "@/lib/utils";
 
@@ -37,6 +38,7 @@ function LayoutContent({ children }: { children: ReactNode }) {
   return (
     <ReactFlowProvider>
       <PersistentCanvas />
+      <TemplateButton />
       <div className="pointer-events-none relative z-10">{children}</div>
     </ReactFlowProvider>
   );

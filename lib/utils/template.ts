@@ -135,6 +135,12 @@ export function processConfigTemplates(
   config: Record<string, unknown>,
   nodeOutputs: NodeOutputs
 ): Record<string, unknown> {
+  // --- START DEBUG LOG ---
+  console.log("--- TEMPLATE ENGINE START ---");
+  console.log("Attempting to process config:", JSON.stringify(config, null, 2));
+  console.log("Using outputs:", JSON.stringify(nodeOutputs, null, 2));
+  // --- END DEBUG LOG ---
+
   const processed: Record<string, unknown> = {};
 
   for (const [key, value] of Object.entries(config)) {
@@ -241,16 +247,21 @@ function resolveFieldPath(data: unknown, fieldPath: string): unknown {
 }
 
 /**
- * Find a node output by label (case-insensitive)
+ * Find a node output by label (case-insensitive and space-insensitive)
+ * This allows {{ExtractCA.field}} to match a node labeled "Extract CA"
  */
 function findNodeOutputByLabel(
   label: string,
   nodeOutputs: NodeOutputs
 ): { label: string; data: unknown } | undefined {
-  const normalizedLabel = label.toLowerCase().trim();
+  // Normalize: lowercase, trim, and remove spaces/hyphens/underscores
+  const normalizeForComparison = (s: string) =>
+    s.toLowerCase().trim().replace(/[\s\-_]/g, "");
+
+  const normalizedLabel = normalizeForComparison(label);
 
   for (const output of Object.values(nodeOutputs)) {
-    if (output.label.toLowerCase().trim() === normalizedLabel) {
+    if (normalizeForComparison(output.label) === normalizedLabel) {
       return output;
     }
   }

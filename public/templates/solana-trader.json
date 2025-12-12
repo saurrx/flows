@@ -1,0 +1,99 @@
+{
+    "name": "Solana Trading Agent",
+    "description": "Automatically buy tokens when sent a CA via Telegram",
+    "nodes": [
+        {
+            "id": "telegram-trigger",
+            "type": "trigger",
+            "position": {
+                "x": 100,
+                "y": 200
+            },
+            "data": {
+                "label": "Telegram",
+                "description": "Receives messages from Telegram",
+                "type": "trigger",
+                "config": {
+                    "triggerType": "Telegram"
+                },
+                "status": "idle"
+            }
+        },
+        {
+            "id": "extract-ca",
+            "type": "action",
+            "position": {
+                "x": 400,
+                "y": 200
+            },
+            "data": {
+                "label": "Extract CA",
+                "description": "Extract Solana CA from message",
+                "type": "action",
+                "config": {
+                    "actionType": "solana/extract-ca",
+                    "text": "{{Telegram.text}}"
+                },
+                "status": "idle"
+            }
+        },
+        {
+            "id": "trade-token",
+            "type": "action",
+            "position": {
+                "x": 700,
+                "y": 200
+            },
+            "data": {
+                "label": "Trade Token",
+                "description": "Swap SOL for token",
+                "type": "action",
+                "config": {
+                    "actionType": "solana/trade-token",
+                    "targetTokenMint": "{{ExtractCA.firstAddress}}",
+                    "sourceAmountUnits": "0.001",
+                    "solanaPrivateKey": ""
+                },
+                "status": "idle"
+            }
+        },
+        {
+            "id": "send-message",
+            "type": "action",
+            "position": {
+                "x": 1000,
+                "y": 200
+            },
+            "data": {
+                "label": "Send Message",
+                "description": "Reply with transaction",
+                "type": "action",
+                "config": {
+                    "actionType": "telegram/send-message",
+                    "text": "Just bought a token : Tx hash : https://solscan.io/tx/{{TradeToken.signature}}"
+                },
+                "status": "idle"
+            }
+        }
+    ],
+    "edges": [
+        {
+            "id": "edge-1",
+            "source": "telegram-trigger",
+            "target": "extract-ca",
+            "type": "default"
+        },
+        {
+            "id": "edge-2",
+            "source": "extract-ca",
+            "target": "trade-token",
+            "type": "default"
+        },
+        {
+            "id": "edge-3",
+            "source": "trade-token",
+            "target": "send-message",
+            "type": "default"
+        }
+    ]
+}

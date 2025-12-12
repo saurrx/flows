@@ -39,6 +39,19 @@ function TemplateInputField({ field, value, onChange, disabled }: FieldProps) {
   );
 }
 
+function TemplatePasswordField({ field, value, onChange, disabled }: FieldProps) {
+  return (
+    <TemplateBadgeInput
+      disabled={disabled}
+      id={field.key}
+      onChange={onChange}
+      placeholder={field.placeholder}
+      value={value}
+      isPassword
+    />
+  );
+}
+
 function TemplateTextareaField({
   field,
   value,
@@ -119,6 +132,7 @@ const FIELD_RENDERERS: Record<
   React.ComponentType<FieldProps>
 > = {
   "template-input": TemplateInputField,
+  "template-password": TemplatePasswordField,
   "template-textarea": TemplateTextareaField,
   text: TextInputField,
   number: NumberInputField,
@@ -191,9 +205,8 @@ function FieldGroup({
       >
         <span className="font-medium text-sm">{label}</span>
         <ChevronDown
-          className={`h-3.5 w-3.5 text-muted-foreground transition-transform duration-200 ${
-            isExpanded ? "" : "-rotate-90"
-          }`}
+          className={`h-3.5 w-3.5 text-muted-foreground transition-transform duration-200 ${isExpanded ? "" : "-rotate-90"
+            }`}
         />
       </button>
       {isExpanded && (

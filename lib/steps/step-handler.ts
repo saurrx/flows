@@ -17,6 +17,7 @@ export type StepContext = {
   nodeId: string;
   nodeName: string;
   nodeType: string;
+  triggerData?: Record<string, unknown>;
 };
 
 /**
