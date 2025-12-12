@@ -14,22 +14,8 @@
  * 2. Run: pnpm discover-plugins (or it runs automatically on build)
  */
 
-import "./ai-gateway";
-import "./blob";
-import "./clerk";
-import "./fal";
-import "./firecrawl";
-import "./github";
-import "./linear";
-import "./perplexity";
-import "./resend";
-import "./slack";
 import "./solana";
-import "./stripe";
-import "./superagent";
 import "./telegram";
-import "./v0";
-import "./webflow";
 
 export type {
   ActionConfigField,

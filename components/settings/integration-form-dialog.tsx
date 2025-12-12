@@ -258,7 +258,7 @@ export function IntegrationFormDialog({
               >
                 <IntegrationIcon
                   className="size-8"
-                  integration={type === "ai-gateway" ? "vercel" : type}
+                  integration={type}
                 />
                 <span className="text-center font-medium">
                   {getLabel(type)}
