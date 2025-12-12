@@ -27,7 +27,7 @@ export function Footer() {
                                 <div className="flex items-center gap-4 mb-4">
                                     <div className="relative h-16 w-16 flex-shrink-0">
                                         <Image
-                                            src="/cyrene-logo.svg"
+                                            src="/cyrene-logo.png"
                                             alt="Cyrene AI Logo"
                                             fill
                                             className="object-contain"
