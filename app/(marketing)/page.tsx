@@ -23,7 +23,7 @@ export default function LandingPage() {
         <WebGLShader />
 
         {/* Subtle Ambient Gradient */}
-        <div className="absolute top-0 right-0 w-[80%] h-[800px] bg-gradient-to-b from-[#9B5CFF]/5 via-[#21D4FD]/5 to-transparent blur-[120px] -z-10 pointer-events-none" />
+        <div className="absolute top-0 right-0 w-[80%] h-[800px] bg-gradient-to-b from-[#9B5CFF]/5 via-[#21D4FD]/5 to-transparent blur-[120px] z-[1] pointer-events-none" />
 
         {/* Scroll Animation Section */}
         <ContainerScroll
@@ -60,7 +60,7 @@ export default function LandingPage() {
           }
         >
           <Image
-            src="/hero-image.jpeg"
+            src="/hero-image-v2.jpeg"
             alt="Flows by CyreneAI Dashboard"
             height={720}
             width={1400}
