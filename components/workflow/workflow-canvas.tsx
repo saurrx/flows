@@ -522,7 +522,7 @@ export function WorkflowCanvas() {
 
   return (
     <div
-      className="relative h-full bg-background"
+      className="relative h-full"
       data-testid="workflow-canvas"
       style={{
         opacity: isCanvasReady ? 1 : 0,
@@ -530,16 +530,82 @@ export function WorkflowCanvas() {
         transition: isPanelAnimating
           ? "width 300ms ease-out, opacity 300ms"
           : "opacity 300ms",
+        background:
+          "radial-gradient(circle at top, #060606 0%, #000000 55%, #000000 100%)",
       }}
     >
+      {/* Ambient Glows */}
+      <div
+        className="pointer-events-none absolute inset-0 overflow-hidden"
+        style={{ zIndex: 0 }}
+      >
+        {/* Top-right glow */}
+        <div
+          className="absolute top-0 right-0 h-[600px] w-[600px] rounded-full opacity-20 blur-[120px]"
+          style={{
+            background:
+              "radial-gradient(circle, rgba(0, 255, 163, 0.15) 0%, rgba(153, 69, 255, 0.1) 100%)",
+            transform: "translate(30%, -30%)",
+          }}
+        />
+        {/* Bottom-left glow */}
+        <div
+          className="absolute bottom-0 left-0 h-[600px] w-[600px] rounded-full opacity-20 blur-[120px]"
+          style={{
+            background:
+              "radial-gradient(circle, rgba(52, 140, 255, 0.15) 0%, rgba(0, 255, 163, 0.1) 100%)",
+            transform: "translate(-30%, 30%)",
+          }}
+        />
+      </div>
+
       {/* Toolbar */}
-      <div className="pointer-events-auto">
+      <div className="pointer-events-auto relative z-50">
         <WorkflowToolbar workflowId={currentWorkflowId ?? undefined} />
       </div>
 
+      {/* SVG Definitions for Gradients */}
+      <svg style={{ position: "absolute", top: 0, left: 0, width: 0, height: 0 }}>
+        <defs>
+          <linearGradient id="solanaGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#9945FF" />
+            <stop offset="100%" stopColor="#00FFA3" />
+          </linearGradient>
+          <marker
+            id="edge-arrow"
+            viewBox="0 0 10 10"
+            refX="8"
+            refY="5"
+            markerWidth="6"
+            markerHeight="6"
+            orient="auto-start-reverse"
+          >
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="rgba(255,255,255,0.2)" />
+          </marker>
+          <marker
+            id="edge-arrow-active"
+            viewBox="0 0 10 10"
+            refX="8"
+            refY="5"
+            markerWidth="8"
+            markerHeight="8"
+            orient="auto-start-reverse"
+          >
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#00FFA3">
+              <animate
+                attributeName="fill-opacity"
+                values="0.6;1;0.6"
+                dur="1.5s"
+                repeatCount="indefinite"
+              />
+            </path>
+          </marker>
+        </defs>
+      </svg>
+
       {/* React Flow Canvas */}
       <Canvas
-        className="bg-background"
+        className="bg-transparent"
         connectionLineComponent={Connection}
         connectionMode={ConnectionMode.Strict}
         edges={edges}
@@ -569,7 +635,17 @@ export function WorkflowCanvas() {
           <Controls />
         </Panel>
         {showMinimap && (
-          <MiniMap bgColor="var(--sidebar)" nodeStrokeColor="var(--border)" />
+          <MiniMap
+            bgColor="#000000"
+            maskColor="rgba(255, 255, 255, 0.05)"
+            nodeColor="rgba(255, 255, 255, 0.1)"
+            nodeStrokeColor="rgba(255, 255, 255, 0.2)"
+            style={{
+              background: "rgba(0, 0, 0, 0.5)",
+              border: "1px solid rgba(255, 255, 255, 0.1)",
+              borderRadius: "8px",
+            }}
+          />
         )}
       </Canvas>
 

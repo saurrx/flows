@@ -1173,7 +1173,7 @@ function ToolbarActions({
       {/* Add Step - Mobile Vertical */}
       <ButtonGroup className="flex lg:hidden" orientation="vertical">
         <Button
-          className="border hover:bg-black/5 disabled:opacity-100 dark:hover:bg-white/5 disabled:[&>svg]:text-muted-foreground"
+          className="border border-white/10 bg-black/20 backdrop-blur-md hover:bg-white/10 disabled:opacity-50 disabled:[&>svg]:text-muted-foreground"
           disabled={state.isGenerating}
           onClick={handleAddStep}
           size="icon"
@@ -1187,7 +1187,7 @@ function ToolbarActions({
       {/* Properties - Mobile Vertical (always visible) */}
       <ButtonGroup className="flex lg:hidden" orientation="vertical">
         <Button
-          className="border hover:bg-black/5 dark:hover:bg-white/5"
+          className="border border-white/10 bg-black/20 backdrop-blur-md hover:bg-white/10"
           onClick={() => setShowPropertiesSheet(true)}
           size="icon"
           title="Properties"
@@ -1198,7 +1198,7 @@ function ToolbarActions({
         {/* Delete - Show when node or edge is selected */}
         {hasSelection && (
           <Button
-            className="border hover:bg-black/5 dark:hover:bg-white/5"
+            className="border border-white/10 bg-black/20 backdrop-blur-md hover:bg-white/10"
             onClick={() => setShowDeleteAlert(true)}
             size="icon"
             title="Delete"
@@ -1241,7 +1241,7 @@ function ToolbarActions({
       {/* Add Step - Desktop Horizontal */}
       <ButtonGroup className="hidden lg:flex" orientation="horizontal">
         <Button
-          className="border hover:bg-black/5 disabled:opacity-100 dark:hover:bg-white/5 disabled:[&>svg]:text-muted-foreground"
+          className="border border-white/10 bg-black/20 backdrop-blur-md hover:bg-white/10 disabled:opacity-50 disabled:[&>svg]:text-muted-foreground"
           disabled={state.isGenerating}
           onClick={handleAddStep}
           size="icon"
@@ -1255,7 +1255,7 @@ function ToolbarActions({
       {/* Undo/Redo - Mobile Vertical */}
       <ButtonGroup className="flex lg:hidden" orientation="vertical">
         <Button
-          className="border hover:bg-black/5 disabled:opacity-100 dark:hover:bg-white/5 disabled:[&>svg]:text-muted-foreground"
+          className="border border-white/10 bg-black/20 backdrop-blur-md hover:bg-white/10 disabled:opacity-50 disabled:[&>svg]:text-muted-foreground"
           disabled={!state.canUndo || state.isGenerating}
           onClick={() => state.undo()}
           size="icon"
@@ -1265,7 +1265,7 @@ function ToolbarActions({
           <Undo2 className="size-4" />
         </Button>
         <Button
-          className="border hover:bg-black/5 disabled:opacity-100 dark:hover:bg-white/5 disabled:[&>svg]:text-muted-foreground"
+          className="border border-white/10 bg-black/20 backdrop-blur-md hover:bg-white/10 disabled:opacity-50 disabled:[&>svg]:text-muted-foreground"
           disabled={!state.canRedo || state.isGenerating}
           onClick={() => state.redo()}
           size="icon"
@@ -1279,7 +1279,7 @@ function ToolbarActions({
       {/* Undo/Redo - Desktop Horizontal */}
       <ButtonGroup className="hidden lg:flex" orientation="horizontal">
         <Button
-          className="border hover:bg-black/5 disabled:opacity-100 dark:hover:bg-white/5 disabled:[&>svg]:text-muted-foreground"
+          className="border border-white/10 bg-black/20 backdrop-blur-md hover:bg-white/10 disabled:opacity-50 disabled:[&>svg]:text-muted-foreground"
           disabled={!state.canUndo || state.isGenerating}
           onClick={() => state.undo()}
           size="icon"
@@ -1289,7 +1289,7 @@ function ToolbarActions({
           <Undo2 className="size-4" />
         </Button>
         <Button
-          className="border hover:bg-black/5 disabled:opacity-100 dark:hover:bg-white/5 disabled:[&>svg]:text-muted-foreground"
+          className="border border-white/10 bg-black/20 backdrop-blur-md hover:bg-white/10 disabled:opacity-50 disabled:[&>svg]:text-muted-foreground"
           disabled={!state.canRedo || state.isGenerating}
           onClick={() => state.redo()}
           size="icon"
@@ -1330,7 +1330,7 @@ function SaveButton({
 }) {
   return (
     <Button
-      className="relative border hover:bg-black/5 disabled:opacity-100 dark:hover:bg-white/5 disabled:[&>svg]:text-muted-foreground"
+      className="relative border border-white/10 bg-black/20 backdrop-blur-md hover:bg-white/10 disabled:opacity-50 disabled:[&>svg]:text-muted-foreground"
       disabled={
         !state.currentWorkflowId || state.isGenerating || state.isSaving
       }
@@ -1359,7 +1359,7 @@ function DownloadButton({
 }) {
   return (
     <Button
-      className="border hover:bg-black/5 disabled:opacity-100 dark:hover:bg-white/5 disabled:[&>svg]:text-muted-foreground"
+      className="border border-white/10 bg-black/20 backdrop-blur-md hover:bg-white/10 disabled:opacity-50 disabled:[&>svg]:text-muted-foreground"
       disabled={
         state.isDownloading ||
         state.nodes.length === 0 ||
@@ -1398,7 +1398,7 @@ function VisibilityButton({
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
-          className="border hover:bg-black/5 dark:hover:bg-white/5"
+          className="border border-white/10 bg-black/20 backdrop-blur-md hover:bg-white/10"
           disabled={!state.currentWorkflowId || state.isGenerating}
           size="icon"
           title={isPublic ? "Public workflow" : "Private workflow"}
@@ -1443,7 +1443,7 @@ function RunButtonGroup({
 }) {
   return (
     <Button
-      className="border hover:bg-black/5 disabled:opacity-100 dark:hover:bg-white/5 disabled:[&>svg]:text-muted-foreground"
+      className="border border-white/10 bg-black/20 backdrop-blur-md hover:bg-white/10 disabled:opacity-50 disabled:[&>svg]:text-muted-foreground"
       disabled={
         state.isExecuting || state.nodes.length === 0 || state.isGenerating
       }
@@ -1471,7 +1471,7 @@ function DuplicateButton({
 }) {
   return (
     <Button
-      className="h-9 border hover:bg-black/5 dark:hover:bg-white/5"
+      className="h-9 border border-white/10 bg-black/20 backdrop-blur-md hover:bg-white/10"
       disabled={isDuplicating}
       onClick={onDuplicate}
       size="sm"
@@ -1500,7 +1500,7 @@ function WorkflowMenuComponent({
 }) {
   return (
     <div className="flex flex-col gap-1">
-      <div className="flex h-9 max-w-[160px] items-center overflow-hidden rounded-md border bg-secondary text-secondary-foreground sm:max-w-none">
+      <div className="flex h-9 max-w-[160px] items-center overflow-hidden rounded-md border border-white/10 bg-black/20 backdrop-blur-md text-secondary-foreground sm:max-w-none">
         <DropdownMenu onOpenChange={(open) => open && actions.loadWorkflows()}>
           <DropdownMenuTrigger className="flex h-full cursor-pointer items-center gap-2 px-3 font-medium text-sm transition-all hover:bg-black/5 dark:hover:bg-white/5">
             <WorkflowIcon className="size-4 shrink-0" />

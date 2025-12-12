@@ -608,8 +608,8 @@ export const PanelInner = () => {
                 />
               </div>
               {!isOwner && (
-                <div className="rounded-lg border border-muted bg-muted/30 p-3">
-                  <p className="text-muted-foreground text-sm">
+                <div className="rounded-lg border border-white/10 bg-white/5 p-3">
+                  <p className="text-white/70 text-sm">
                     You are viewing a public workflow. Duplicate it to make
                     changes.
                   </p>
@@ -665,7 +665,7 @@ export const PanelInner = () => {
             </TabsContent>
           )}
           <TabsContent className="flex flex-col overflow-hidden" value="code">
-            <div className="shrink-0 border-b bg-muted/30 px-3 pb-2">
+            <div className="shrink-0 border-b border-white/10 bg-white/5 px-3 pb-2">
               <div className="flex items-center gap-2">
                 <FileCode className="size-3.5 text-muted-foreground" />
                 <code className="text-muted-foreground text-xs">
@@ -754,7 +754,7 @@ export const PanelInner = () => {
           </TabsTrigger>
           {(selectedNode.data.type !== "trigger" ||
             (selectedNode.data.config?.triggerType as string) !== "Manual") &&
-          selectedNode.data.config?.actionType !== "Condition" ? (
+            selectedNode.data.config?.actionType !== "Condition" ? (
             <TabsTrigger
               className="bg-transparent text-muted-foreground data-[state=active]:text-foreground data-[state=active]:shadow-none"
               value="code"
@@ -812,7 +812,7 @@ export const PanelInner = () => {
               )}
 
             {selectedNode.data.type === "action" &&
-            selectedNode.data.config?.actionType ? (
+              selectedNode.data.config?.actionType ? (
               <ActionConfig
                 config={selectedNode.data.config || {}}
                 disabled={isGenerating || !isOwner}
@@ -821,7 +821,7 @@ export const PanelInner = () => {
             ) : null}
 
             {selectedNode.data.type !== "action" ||
-            selectedNode.data.config?.actionType ? (
+              selectedNode.data.config?.actionType ? (
               <>
                 <div className="space-y-2">
                   <Label className="ml-1" htmlFor="label">
@@ -952,12 +952,11 @@ export const PanelInner = () => {
                 language = "typescript";
               }
             } else {
-              filename = `steps/${
-                (selectedNode.data.config?.actionType as string)
+              filename = `steps/${(selectedNode.data.config?.actionType as string)
                   ?.toLowerCase()
                   .replace(/\s+/g, "-")
                   .replace(/[^a-z0-9-]/g, "") || "action"
-              }-step.ts`;
+                }-step.ts`;
             }
 
             return (

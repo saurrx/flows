@@ -41,6 +41,7 @@ export const TriggerNode = memo(({ data, selected }: TriggerNodeProps) => {
       )}
       handles={{ target: false, source: true }}
       status={status}
+      selected={selected}
     >
       {/* Status indicator badge in top right */}
       {status && status !== "idle" && status !== "running" && (
@@ -61,7 +62,11 @@ export const TriggerNode = memo(({ data, selected }: TriggerNodeProps) => {
       )}
 
       <div className="flex flex-col items-center justify-center gap-3 p-6">
-        <TriggerIcon className="size-12 text-blue-500" strokeWidth={1.5} />
+        <TriggerIcon
+          className="size-12 text-blue-500"
+          strokeWidth={1.5}
+          style={{ filter: "drop-shadow(0 0 6px rgba(52,140,255,0.4))" }}
+        />
         <div className="flex flex-col items-center gap-1 text-center">
           <NodeTitle className="text-base">{displayTitle}</NodeTitle>
           {displayDescription && (

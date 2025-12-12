@@ -201,8 +201,8 @@ export function TriggerConfig({
             />
           </div>
 
-          <div className="rounded-md bg-blue-50 p-3 dark:bg-blue-900/20">
-            <p className="text-xs text-blue-700 dark:text-blue-300 mb-3">
+          <div className="rounded-md border border-blue-500/20 bg-blue-500/10 p-3">
+            <p className="text-xs text-blue-400 mb-3">
               Click below to automatically connect your bot to this workflow.
             </p>
             <Button

@@ -127,15 +127,17 @@ const Animated = ({ id, source, target, style, selected }: EdgeProps) => {
   });
 
   return (
-    <BaseEdge 
-      id={id} 
-      path={edgePath} 
+    <BaseEdge
+      id={id}
+      path={edgePath}
+      markerEnd={selected ? "url(#edge-arrow-active)" : "url(#edge-arrow)"}
       style={{
         ...style,
-        stroke: selected ? "var(--muted-foreground)" : "var(--border)",
-        strokeWidth: 2,
-        animation: "dashdraw 0.5s linear infinite",
-        strokeDasharray: 5,
+        stroke: selected ? "url(#solanaGradient)" : "rgba(255,255,255,0.15)",
+        strokeWidth: selected ? 3 : 2,
+        filter: selected ? "drop-shadow(0 0 6px rgba(0,255,163,0.3))" : "none",
+        animation: selected ? "dashdraw 0.5s linear infinite" : "none",
+        strokeDasharray: selected ? 5 : "none",
       }}
     />
   );

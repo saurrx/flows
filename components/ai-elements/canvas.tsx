@@ -17,11 +17,11 @@ export const Canvas = ({ children, ...props }: CanvasProps) => {
       zoomOnPinch
       {...props}
     >
-      <Background 
-        bgColor="var(--sidebar)" 
-        color="var(--border)" 
-        gap={24} 
-        size={2}
+      <Background
+        bgColor="transparent"
+        color="rgba(255, 255, 255, 0.2)"
+        gap={24}
+        size={1.5}
       />
       {children}
     </ReactFlow>

@@ -96,46 +96,49 @@ const plugins = [
   }),
   ...(process.env.VERCEL_CLIENT_ID
     ? [
-        genericOAuth({
-          config: [
-            {
-              providerId: "vercel",
-              clientId: process.env.VERCEL_CLIENT_ID,
-              clientSecret: process.env.VERCEL_CLIENT_SECRET || "",
-              authorizationUrl: "https://vercel.com/oauth/authorize",
-              tokenUrl: "https://api.vercel.com/login/oauth/token",
-              userInfoUrl: "https://api.vercel.com/login/oauth/userinfo",
-              scopes: ["openid", "email", "profile"],
-              discoveryUrl: undefined,
-              pkce: true,
-              getUserInfo: async (tokens) => {
-                const response = await fetch(
-                  "https://api.vercel.com/login/oauth/userinfo",
-                  {
-                    headers: {
-                      Authorization: `Bearer ${tokens.accessToken}`,
-                    },
-                  }
-                );
-                const profile = await response.json();
-                console.log("[Vercel OAuth] userinfo response:", profile);
-                return {
-                  id: profile.sub,
-                  email: profile.email,
-                  name: profile.name ?? profile.preferred_username,
-                  emailVerified: profile.email_verified ?? true,
-                  image: profile.picture,
-                };
-              },
+      genericOAuth({
+        config: [
+          {
+            providerId: "vercel",
+            clientId: process.env.VERCEL_CLIENT_ID,
+            clientSecret: process.env.VERCEL_CLIENT_SECRET || "",
+            authorizationUrl: "https://vercel.com/oauth/authorize",
+            tokenUrl: "https://api.vercel.com/login/oauth/token",
+            userInfoUrl: "https://api.vercel.com/login/oauth/userinfo",
+            scopes: ["openid", "email", "profile"],
+            discoveryUrl: undefined,
+            pkce: true,
+            getUserInfo: async (tokens) => {
+              const response = await fetch(
+                "https://api.vercel.com/login/oauth/userinfo",
+                {
+                  headers: {
+                    Authorization: `Bearer ${tokens.accessToken}`,
+                  },
+                }
+              );
+              const profile = await response.json();
+              console.log("[Vercel OAuth] userinfo response:", profile);
+              return {
+                id: profile.sub,
+                email: profile.email,
+                name: profile.name ?? profile.preferred_username,
+                emailVerified: profile.email_verified ?? true,
+                image: profile.picture,
+              };
             },
-          ],
-        }),
-      ]
+          },
+        ],
+      }),
+    ]
     : []),
 ];
 
 export const auth = betterAuth({
   baseURL: getBaseURL(),
+  trustedOrigins: process.env.TRUSTED_ORIGINS
+    ? process.env.TRUSTED_ORIGINS.split(",")
+    : [],
   database: drizzleAdapter(db, {
     provider: "pg",
     schema,

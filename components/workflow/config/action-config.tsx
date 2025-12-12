@@ -41,7 +41,7 @@ function DatabaseQueryFields({
     <>
       <div className="space-y-2">
         <Label htmlFor="dbQuery">SQL Query</Label>
-        <div className="overflow-hidden rounded-md border">
+        <div className="overflow-hidden rounded-md border border-white/10 bg-black/20">
           <CodeEditor
             defaultLanguage="sql"
             height="150px"
@@ -123,7 +123,7 @@ function HttpRequestFields({
       </div>
       <div className="space-y-2">
         <Label htmlFor="httpHeaders">Headers (JSON)</Label>
-        <div className="overflow-hidden rounded-md border">
+        <div className="overflow-hidden rounded-md border border-white/10 bg-black/20">
           <CodeEditor
             defaultLanguage="json"
             height="100px"
@@ -143,7 +143,7 @@ function HttpRequestFields({
       <div className="space-y-2">
         <Label htmlFor="httpBody">Body (JSON)</Label>
         <div
-          className={`overflow-hidden rounded-md border ${config?.httpMethod === "GET" ? "opacity-50" : ""}`}
+          className={`overflow-hidden rounded-md border border-white/10 bg-black/20 ${config?.httpMethod === "GET" ? "opacity-50" : ""}`}
         >
           <CodeEditor
             defaultLanguage="json"

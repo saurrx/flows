@@ -692,7 +692,7 @@ const WorkflowEditor = ({ params }: WorkflowPageProps) => {
       {/* Right panel overlay (desktop only) */}
       {!isMobile && (
         <div
-          className="pointer-events-auto absolute inset-y-0 right-0 z-20 border-l bg-background transition-transform duration-300 ease-out"
+          className="pointer-events-auto absolute inset-y-0 right-0 z-20 border-l border-white/10 bg-black/20 backdrop-blur-xl transition-transform duration-300 ease-out"
           style={{
             width: `${panelWidth}%`,
             transform:

@@ -201,6 +201,24 @@
   cursor: pointer !important;
 }
 
+/* Node Dragging Effects */
+.react-flow__node.dragging .node-container {
+  transform: scale(1.05) !important;
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5), 0 0 20px rgba(153, 69, 255, 0.2) !important;
+  z-index: 1000 !important;
+}
+
+/* Edge Hover Effect */
+.react-flow__edge-path {
+  transition: all 0.3s ease;
+}
+
+.react-flow__edge-path:hover {
+  stroke: url(#solanaGradient) !important;
+  stroke-width: 3px !important;
+  filter: drop-shadow(0 0 6px rgba(0, 255, 163, 0.3));
+}
+
 /* React Flow handle positioning and styling */
 .react-flow__handle {
   width: 12px !important;

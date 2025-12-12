@@ -276,6 +276,7 @@ export const ActionNode = memo(({ data, selected, id }: ActionNodeProps) => {
         data-testid={`action-node-${id}`}
         handles={{ target: true, source: true }}
         status={status}
+        selected={selected}
       >
         {isDisabled && (
           <div className="absolute top-2 left-2 rounded-full bg-gray-500/50 p-1">
@@ -283,7 +284,9 @@ export const ActionNode = memo(({ data, selected, id }: ActionNodeProps) => {
           </div>
         )}
         <div className="flex flex-col items-center justify-center gap-3 p-6">
-          <Zap className="size-12 text-muted-foreground" strokeWidth={1.5} />
+          <div style={{ filter: "drop-shadow(0 0 6px rgba(0,255,163,0.4))" }}>
+            <Zap className="size-12 text-muted-foreground" strokeWidth={1.5} />
+          </div>
           <div className="flex flex-col items-center gap-1 text-center">
             <NodeTitle className="text-base">
               {data.label || "Action"}
@@ -346,6 +349,7 @@ export const ActionNode = memo(({ data, selected, id }: ActionNodeProps) => {
       data-testid={`action-node-${id}`}
       handles={{ target: true, source: true }}
       status={status}
+      selected={selected}
     >
       {/* Disabled badge in top left */}
       {isDisabled && (
@@ -370,7 +374,9 @@ export const ActionNode = memo(({ data, selected, id }: ActionNodeProps) => {
             base64={(nodeLog.output as { base64: string }).base64}
           />
         ) : (
-          getProviderLogo(actionType)
+          <div style={{ filter: "drop-shadow(0 0 6px rgba(0,255,163,0.4))" }}>
+            {getProviderLogo(actionType)}
+          </div>
         )}
         <div className="flex flex-col items-center gap-1 text-center">
           <NodeTitle className="text-base">{displayTitle}</NodeTitle>
