@@ -32,7 +32,7 @@ function createDefaultTriggerNode() {
   };
 }
 
-const Home = () => {
+const BuilderPage = () => {
   const router = useRouter();
   const { data: session } = useSession();
   const nodes = useAtomValue(nodesAtom);
@@ -47,7 +47,7 @@ const Home = () => {
   const hasCreatedWorkflowRef = useRef(false);
   const currentWorkflowName = useAtomValue(currentWorkflowNameAtom);
 
-  // Reset sidebar animation state when on homepage
+  // Reset sidebar animation state when on builder page
   useEffect(() => {
     setHasSidebarBeenShown(false);
   }, [setHasSidebarBeenShown]);
@@ -115,12 +115,12 @@ const Home = () => {
           edges,
         });
 
-        // Set flags to indicate we're coming from homepage (for sidebar animation)
+        // Set flags to indicate we're coming from builder (for sidebar animation)
         sessionStorage.setItem("animate-sidebar", "true");
         setIsTransitioningFromHomepage(true);
 
         // Redirect to the workflow page
-        console.log("[Homepage] Navigating to workflow page");
+        console.log("[Builder] Navigating to workflow page");
         router.replace(`/workflows/${newWorkflow.id}`);
       } catch (error) {
         console.error("Failed to create workflow:", error);
@@ -135,4 +135,4 @@ const Home = () => {
   return null;
 };
 
-export default Home;
+export default BuilderPage;

@@ -8,8 +8,8 @@ import { Button } from "@/components/ui/button";
 export function TemplateButton() {
     const pathname = usePathname();
 
-    // Only show on homepage
-    if (pathname !== "/") {
+    // Only show on builder page
+    if (pathname !== "/builder") {
         return null;
     }
 
